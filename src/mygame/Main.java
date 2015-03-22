@@ -1,6 +1,7 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
@@ -89,7 +90,14 @@ public class Main extends SimpleApplication {
     }
 
     @Override
-    public void simpleInitApp() {     
+    public void simpleInitApp() {  
+        AudioNode audioNode = new AudioNode(assetManager, "Music/Space.wav");
+        audioNode.setPositional(false);
+        audioNode.setLooping(true);
+        audioNode.setVolume(3);
+        rootNode.attachChild(audioNode);
+        audioNode.play();
+        
         meteorFactory = new MeteorFactory(this);
 
         

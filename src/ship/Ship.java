@@ -140,7 +140,7 @@ public class Ship extends GameObject implements StepListener {
         
         this.spatial.setLocalRotation(Quaternion.IDENTITY);
         if ((this.getX() > 3000 || this.getY() > 3000 || this.getZ() > 3000 || this.getX() < -3000 || this.getY() < -3000 || this.getZ() < -3000) && (this.getHealth() > 0)){
-            this.reduceHealth(0.25f);
+            this.reduceHealth(0.5f);
             app.getGui().attachChild(app.getLeave());
         } else if (!((this.getX() > 3000 || this.getY() > 3000 || this.getZ() > 3000 || this.getX() < -3000 || this.getY() < -3000 || this.getZ() < -3000))){
             app.getLeave().removeFromParent();
