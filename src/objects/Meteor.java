@@ -49,6 +49,8 @@ public class Meteor extends GameObject{
     public Material getMaterial() {
         return this.material;
     }
+
+
     
     
 }

@@ -10,6 +10,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import mygame.Command;
 import mygame.Main;
 import mygame.StepListener;
@@ -20,8 +22,6 @@ import objects.Meteor;
  * @author Destion
  */
 public class Ship extends GameObject implements StepListener {
-    
-    private int id; 
     
     private Vector3f speeds;
     private float[] angles;
@@ -71,7 +71,7 @@ public class Ship extends GameObject implements StepListener {
         this.weapon = new Weapon(8, 4000, 1000);
         if(globalSpatial == null){
             globalSpatial = app.getAssetManager().loadModel("Models/ship/ship.j3o");
-            globalSpatial.scale(5);
+            globalSpatial.scale(10);
             globalSpatial.setMaterial(mat);
         } 
         this.spatial = globalSpatial.clone();
@@ -134,9 +134,30 @@ public class Ship extends GameObject implements StepListener {
 //        if (this.app.doesCollide(this.getSpatial())){
 //            this.health = 0;
 //        }
-        
-        node.move(this.app.getCamera().getDirection().normalizeLocal().mult(new Vector3f(10f, 10f, 10f))); // 0.1 = speed        
-        this.setPosition(node.getLocalTranslation());
+        if(this.id == this.app.getNet().getId()){
+            node.move(this.app.getCamera().getDirection().normalizeLocal().mult(new Vector3f(2f, 2f, 2f))); // 0.1 = speed        
+            this.setPosition(node.getLocalTranslation());
+            this.direction = this.app.getCamDir();
+            Command command = new Command(Command.CommandType.MOVE);
+            command.addArgument(Float.toString(this.position.x))
+                    .addArgument(Float.toString(this.position.y))
+                    .addArgument(Float.toString(this.position.z))
+                    .addArgument(Float.toString(this.direction.x))
+                    .addArgument(Float.toString(this.direction.y))
+                    .addArgument(Float.toString(this.direction.z));
+            try {
+                this.app.getNet().send(command);
+            } catch (IOException ex) {
+                Logger.getLogger(Ship.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            System.out.println("My id: "+this.id+", NetId: "+this.app.getNet().getId());
+            node.setLocalTranslation(position);
+            node.setLocalRotation(Quaternion.IDENTITY);
+            node.rotate(direction.x, direction.y, direction.z);
+            System.out.println("Local translation:" + node.getLocalTranslation());
+            System.out.println(position);
+        }
         
         this.spatial.setLocalRotation(Quaternion.IDENTITY);
         if ((this.getX() > 3000 || this.getY() > 3000 || this.getZ() > 3000 || this.getX() < -3000 || this.getY() < -3000 || this.getZ() < -3000) && (this.getHealth() > 0)){
@@ -174,9 +195,7 @@ public class Ship extends GameObject implements StepListener {
     }
     
     //Getter for identification number
-    public int getId(){
-        return this.id;
-    }
+
     
     public Vector3f getSpeeds(){
         return this.speeds;
@@ -191,9 +210,6 @@ public class Ship extends GameObject implements StepListener {
     }
     public void setZ(float z){
         this.position.z = z;
-    }
-    public void setId(int id){
-        this.id = id;
     }
     
     public void wPressed(float force){
@@ -236,6 +252,8 @@ public class Ship extends GameObject implements StepListener {
     public void hit(int damage){
          this.health -= damage;
      }     
+
+
      
     //Weapon carries the reloadtime and damage of the weapon this ship is carrying, enabling multiple types of ship
     public class Weapon implements StepListener {

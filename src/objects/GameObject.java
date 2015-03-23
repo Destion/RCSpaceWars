@@ -35,8 +35,16 @@ public abstract class GameObject {
         return this.direction;
     }
     
+    public void setDirection(Vector3f direction){
+        this.direction = direction;
+    }
+    
     public int getId(){
         return this.id;
+    }
+    
+    public void setId(int id){
+        this.id = id;
     }
     
     public void setPosition(Vector3f position){
@@ -44,5 +52,6 @@ public abstract class GameObject {
     }
     
     public abstract Spatial getSpatial();
+    
     
 }
