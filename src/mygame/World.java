@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import objects.GameObject;
+import ship.Ship;
 
 public class World implements StepListener {
 
@@ -38,6 +39,12 @@ public class World implements StepListener {
         }
         for (Integer id : delete) {
             queue.remove(id);
+        }
+        for (GameObject entity: this.entityMap.values()){
+            if (entity instanceof Ship){
+                System.out.println("Step");
+                ((Ship) entity).step();
+            }
         }
     }
 

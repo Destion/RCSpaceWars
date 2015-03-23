@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import objects.Meteor;
 import objects.MeteorFactory;
+import server.ServerThread;
 import ship.Ship;
 
 /**
@@ -61,13 +62,19 @@ public class Main extends SimpleApplication {
     
     
     public static Main app;
-    public static final String HOST = "130.89.89.27";
+    public static String HOST = "localhost";
     public static final int PORT = 6969;
     public static final String[] USERNAMES = { "Button", "EBOLA.EXE", "OneManCheeseBurgerApocalypse", "BlackMesa", "Microsoft_GLa-DoS", "ZeroCool", "CrashOverride", "AcidBurn", "CerealKiller", "ThaPhreak" };
     
     public static void main(String[] args) {
         app = new Main();  
-        
+        if (args.length > 0){
+            HOST = args[0];
+        }
+        if(HOST == "localhost" || HOST == "127.0.0.1"){
+            ServerThread serverThread = new ServerThread();
+            serverThread.start();
+        }
         geomMeteorList = new ArrayList<Spatial>();
         metNode = new Node();
         
@@ -91,13 +98,13 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {  
-        AudioNode audioNode = new AudioNode(assetManager, "Music/Space.wav");
-        audioNode.setPositional(false);
-        audioNode.setLooping(true);
-        audioNode.setVolume(3);
-        rootNode.attachChild(audioNode);
-        audioNode.play();
-        
+//        AudioNode audioNode = new AudioNode(assetManager, "Music/Space.wav");
+//        audioNode.setPositional(false);
+//        audioNode.setLooping(true);
+//        audioNode.setVolume(3);
+//        rootNode.attachChild(audioNode);
+//        audioNode.play();
+//        
         meteorFactory = new MeteorFactory(this);
 
         
@@ -278,7 +285,8 @@ public class Main extends SimpleApplication {
     }
     
     public void enableControls() {
-        addStepListener(mainship);
+        //addStepListener(mainship);
+        mainship.setId(this.net.getId());
         addStepListener(mainship.getWep());
         addStepListener(skbListener);
     }

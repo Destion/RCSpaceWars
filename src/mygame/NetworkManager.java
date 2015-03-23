@@ -4,12 +4,15 @@
  */
 package mygame;
 
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import ship.Ship;
 
 /**
  *
@@ -37,6 +40,10 @@ public class NetworkManager implements Runnable {
         }
     }
     
+    public int getId(){
+        return controlId;
+    }
+    
     public void run() {
         try {
             while (true) {
@@ -50,7 +57,24 @@ public class NetworkManager implements Runnable {
                             updateObject(args);
                         } else if (cmd.getCommandType() == Command.CommandType.CONTROL) {
                             controlId = Integer.parseInt(cmd.getArguments()[0]);
-                        } else {
+                        } else if(cmd.getCommandType() == Command.CommandType.UPDATE){
+                            System.err.println("New UPDATE!");
+                            int id = Integer.parseInt(cmd.getArguments()[0]);
+                            
+                            if(id != controlId && World.getInstance().getEntityById(id) != null){
+                                System.err.println("New UPDATE on an Existing Entity");
+                                System.err.println(id + ", " + controlId);
+                                World.getInstance().getEntityById(id).setPosition(new Vector3f(
+                                        Float.parseFloat(cmd.getArguments()[2]), 
+                                        Float.parseFloat(cmd.getArguments()[3]), 
+                                        Float.parseFloat(cmd.getArguments()[4])));
+                                World.getInstance().getEntityById(id).setDirection(new Vector3f(
+                                        Float.parseFloat(cmd.getArguments()[5]), 
+                                        Float.parseFloat(cmd.getArguments()[6]), 
+                                        Float.parseFloat(cmd.getArguments()[7])));
+                            }
+                           
+                        }else {
                             // TODO: implement other commands
                         }
                     }
@@ -82,7 +106,7 @@ public class NetworkManager implements Runnable {
                 app.getShip().setId(controlId);
                 World.getInstance().resetId(-5, controlId);
             } else {
-                // Create ship and add it to the world
+                World.getInstance().register(id, new Ship(id, new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), false, this.app, new Node(), "Swek"));
             }
         } else {
             // TODO: implement other objects
