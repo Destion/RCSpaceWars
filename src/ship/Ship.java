@@ -46,6 +46,9 @@ public class Ship extends GameObject implements StepListener {
     private static final int DEFAULTRELOADTIME = 5000;
     private static final int DEFAULTAMMO = 8;
     
+    private static final long DELTA_SEND_TIME = 500;
+    private long lastSent;
+    
     private boolean dead = false;
     private long deathtime = 0;
     private static final long RESPAWN = 5000;
@@ -71,7 +74,7 @@ public class Ship extends GameObject implements StepListener {
         this.weapon = new Weapon(8, 4000, 1000);
         if(globalSpatial == null){
             globalSpatial = app.getAssetManager().loadModel("Models/ship/ship.j3o");
-            globalSpatial.scale(10);
+            globalSpatial.scale(5);
             globalSpatial.setMaterial(mat);
         } 
         this.spatial = globalSpatial.clone();
@@ -135,7 +138,7 @@ public class Ship extends GameObject implements StepListener {
 //            this.health = 0;
 //        }
         if(this.id == this.app.getNet().getId()){
-            node.move(this.app.getCamera().getDirection().normalizeLocal().mult(new Vector3f(2f, 2f, 2f))); // 0.1 = speed        
+            node.move(this.app.getCamera().getDirection().normalizeLocal().mult(new Vector3f(1f, 1f, 1f))); // 0.1 = speed        
             this.setPosition(node.getLocalTranslation());
             this.direction = this.app.getCamDir();
             Command command = new Command(Command.CommandType.MOVE);
@@ -146,9 +149,30 @@ public class Ship extends GameObject implements StepListener {
                     .addArgument(Float.toString(this.direction.y))
                     .addArgument(Float.toString(this.direction.z));
             try {
-                this.app.getNet().send(command);
+                if(lastSent + DELTA_SEND_TIME < System.currentTimeMillis()){
+                    this.app.getNet().send(command);
+                }
+              
             } catch (IOException ex) {
                 Logger.getLogger(Ship.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if ((this.getX() > 3000 || this.getY() > 3000 || this.getZ() > 3000 || this.getX() < -3000 || this.getY() < -3000 || this.getZ() < -3000) && (this.getHealth() > 0)){
+                this.reduceHealth(0.5f);
+                app.getGui().attachChild(app.getLeave());
+            } else if (!((this.getX() > 3000 || this.getY() > 3000 || this.getZ() > 3000 || this.getX() < -3000 || this.getY() < -3000 || this.getZ() < -3000))){
+                app.getLeave().removeFromParent();
+            } else if((this.getHealth() <= 0) && (this.health != -100)){
+                app.getGui().attachChild(app.getDeathScreen());
+                this.dead = true;
+
+                this.respawned = true;
+                this.deathtime = System.currentTimeMillis();
+                try{
+                    this.app.getNet().send(new Command(Command.CommandType.KILL).addArgument(Integer.toString(this.id)));
+                } catch (IOException e){
+
+                }
+                this.health = -100;
             }
         } else {
             System.out.println("My id: "+this.id+", NetId: "+this.app.getNet().getId());
@@ -160,24 +184,7 @@ public class Ship extends GameObject implements StepListener {
         }
         
         this.spatial.setLocalRotation(Quaternion.IDENTITY);
-        if ((this.getX() > 3000 || this.getY() > 3000 || this.getZ() > 3000 || this.getX() < -3000 || this.getY() < -3000 || this.getZ() < -3000) && (this.getHealth() > 0)){
-            this.reduceHealth(0.5f);
-            app.getGui().attachChild(app.getLeave());
-        } else if (!((this.getX() > 3000 || this.getY() > 3000 || this.getZ() > 3000 || this.getX() < -3000 || this.getY() < -3000 || this.getZ() < -3000))){
-            app.getLeave().removeFromParent();
-        } else if((this.getHealth() <= 0) && (this.health != -100)){
-            app.getGui().attachChild(app.getDeathScreen());
-            this.dead = true;
-            
-            this.respawned = true;
-            this.deathtime = System.currentTimeMillis();
-            try{
-                this.app.getNet().send(new Command(Command.CommandType.KILL).addArgument(Integer.toString(this.id)));
-            } catch (IOException e){
-                
-            }
-            this.health = -100;
-        }
+
         
         
 //        if ((System.currentTimeMillis() - this.deathtime) > RESPAWN){

@@ -80,7 +80,7 @@ public class Client extends Entity implements Runnable {
 		}
 	}
 	
-	public void send(Command input) throws IOException {
+	public synchronized void send(Command input) throws IOException {
 		out.write(input.toString());
 		out.newLine();
 		out.flush();

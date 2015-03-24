@@ -8,7 +8,7 @@ import java.util.Random;
  */
 public class MeteorFactory {
     private ArrayList<Meteor> meteors;
-    public static final int METEOR_NUM = 500;
+    public static final int METEOR_NUM = 5000;
     public static final float CREATION_SCALE = 3000;
 
 
@@ -25,7 +25,7 @@ public class MeteorFactory {
             pos[0] = random.nextFloat()*2*CREATION_SCALE-CREATION_SCALE;
             pos[1] = random.nextFloat()*2*CREATION_SCALE-CREATION_SCALE;
             pos[2] = random.nextFloat()*2*CREATION_SCALE-CREATION_SCALE;
-            float size = random.nextFloat()*30 + 6f;
+            float size = random.nextFloat()*30 + 26f;
             Meteor meteor = new Meteor(pos[0], pos[1], pos[2], random.nextFloat(), random.nextFloat(), random.nextFloat(), size);
             meteors.add(meteor);
         }

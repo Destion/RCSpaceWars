@@ -165,7 +165,6 @@ public class Main extends SimpleApplication {
         World.getInstance().register(-5, mainship);
         
         addStepListener(World.getInstance());
-
         cam.setFrustumFar(5000);
         CameraNode camNode = new CameraNode("Camnode", cam);
         
